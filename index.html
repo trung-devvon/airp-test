@@ -82,6 +82,7 @@
         .results-info {
             display: flex;
             justify-content: space-between;
+            margin: 20px 0; 
             align-items: center;
             color: #4a5568;
             font-size: 0.95em;
@@ -152,37 +153,49 @@
             color: #667eea;
         }
 
+        .cell-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+        }
+
+        .cell-text {
+            flex: 1;
+            min-width: 0;
+        }
+
         .text-truncate {
-            max-width: 200px;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            display: inline-block;
-            vertical-align: middle;
+            display: block;
         }
 
         .copy-btn {
-            background: #667eea;
-            color: white;
+            background: #e9d5ff;
+            color: #7c3aed;
             border: none;
-            padding: 6px 10px;
-            border-radius: 6px;
+            padding: 4px 8px;
+            border-radius: 4px;
             cursor: pointer;
-            font-size: 0.85em;
-            margin-left: 8px;
+            font-size: 0.75em;
             transition: all 0.3s ease;
-            vertical-align: middle;
+            flex-shrink: 0;
+            min-width: 28px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .copy-btn:hover {
-            background: #5568d3;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
+            background: #ddd6fe;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(124, 58, 237, 0.2);
         }
 
-        .copy-btn i {
-            margin-right: 4px;
-        }
+
 
         .action-btns {
             display: flex;
@@ -325,7 +338,7 @@
         <div class="table-container">
             <div class="search-grid">
                 <div class="search-box">
-                    <label><i class="fas fa-city"></i> Thành phố</label>
+                    <label><i class="fas fa-city"></i> City</label>
                     <input type="text" id="searchCity" placeholder="Nhập tên thành phố...">
                 </div>
                 <div class="search-box">
@@ -342,19 +355,18 @@
                 </div>
             </div>
             <div class="results-info">
-                <span><i class="fas fa-info-circle"></i> Tìm thấy <strong id="totalResults">0</strong> kết quả</span>
+                <span><i class="fa-solid fa-magnifying-glass"></i> Có tổng <strong id="totalResults">0</strong> dữ liệu</span>
             </div>
             <table id="airportTable">
                 <thead>
                     <tr>
                         <th>STT</th>
-                        <th>Thành phố</th>
+                        <th>City</th>
                         <th>Mã IATA</th>
                         <th>Tiếng Việt</th>
                         <th>Tiếng Anh</th>
                         <th>Tiếng Hàn</th>
                         <th>Tiếng Nhật</th>
-                        <th>Thao tác</th>
                     </tr>
                 </thead>
                 <tbody id="tableBody">

@@ -31,6 +31,12 @@ async function loadData() {
 
 // Remove Vietnamese accents and normalize string
 function removeAccents(str) {
+    // Handle null, undefined, or empty values
+    if (!str || str === undefined || str === null) {
+        return '';
+    }
+    // Convert to string if needed
+    str = String(str);
     return str.normalize('NFD')
         .replace(/[\u0300-\u036f]/g, '')
         .replace(/đ/g, 'd')
@@ -63,6 +69,9 @@ function performSearch() {
     const vietnameseSearch = removeAccents(document.getElementById('searchVietnamese').value);
     const englishSearch = removeAccents(document.getElementById('searchEnglish').value);
 
+    // Check if user is searching
+    const isSearching = citySearch || iataSearch || vietnameseSearch || englishSearch;
+
     filteredData = airportsData.filter(airport => {
         const cityMatch = !citySearch || removeAccents(airport['THÀNH PHỐ']).includes(citySearch);
         const iataMatch = !iataSearch || removeAccents(airport['MÃ IATA']).includes(iataSearch);
@@ -73,15 +82,23 @@ function performSearch() {
     });
 
     currentPage = 1;
-    updateTable();
+    updateTable(isSearching);
 }
 
 // Update table with current page data
-function updateTable() {
+function updateTable(isSearching = false) {
     const tableBody = document.getElementById('tableBody');
     const totalResults = document.getElementById('totalResults');
+    const resultsInfo = document.querySelector('.results-info span');
     
     totalResults.textContent = filteredData.length;
+    
+    // Update results info text based on search state
+    if (isSearching) {
+        resultsInfo.innerHTML = '<i class="fa-solid fa-magnifying-glass"></i> Tìm thấy <strong id="totalResults">' + filteredData.length + '</strong> kết quả';
+    } else {
+        resultsInfo.innerHTML = '<i class="fa-solid fa-magnifying-glass"></i> Có tổng <strong id="totalResults">' + filteredData.length + '</strong> dữ liệu';
+    }
 
     // Calculate pagination
     const startIndex = (currentPage - 1) * itemsPerPage;
@@ -92,7 +109,7 @@ function updateTable() {
     if (filteredData.length === 0) {
         tableBody.innerHTML = `
             <tr>
-                <td colspan="8" class="no-results">
+                <td colspan="7" class="no-results">
                     <i class="fas fa-search"></i>
                     <h3>Không tìm thấy kết quả</h3>
                     <p>Vui lòng thử với từ khóa khác</p>
@@ -115,13 +132,6 @@ function updateTable() {
                 <td>${truncateText(airport['TIẾNG ANH'], globalIndex, 'TIẾNG ANH')}</td>
                 <td>${truncateText(airport['TIẾNG HÀN'], globalIndex, 'TIẾNG HÀN')}</td>
                 <td>${truncateText(airport['TIẾNG NHẬT'], globalIndex, 'TIẾNG NHẬT')}</td>
-                <td>
-                    <div class="action-btns">
-                        <button class="btn-edit" onclick="editRow(${startIndex + index})">
-                            <i class="fas fa-edit"></i> Sửa
-                        </button>
-                    </div>
-                </td>
             </tr>
         `;
     }).join('');
@@ -129,38 +139,57 @@ function updateTable() {
     updatePagination();
 }
 
-// Truncate text and add copy button if needed
+// Truncate text and add copy button
 function truncateText(text, rowIndex, field, maxLength = 25) {
-    if (text.length <= maxLength) {
-        return text;
+    // Check if text is undefined, null, or empty
+    if (!text || text === undefined || text === null) {
+        return '-';
     }
+    
+    // Convert to string if needed
+    text = String(text);
+    
+    // Escape text for safe HTML attribute usage
+    const escapedText = text.replace(/\\/g, '\\\\').replace(/'/g, "\\'")
+    
+    // Always show copy button for every row with fixed position
+    if (text.length <= maxLength) {
+        return `
+            <div class="cell-content">
+                <span class="cell-text">${text}</span>
+                <button class="copy-btn" onclick="copyText(this, '${escapedText}')">
+                    <i class="fas fa-copy"></i>
+                </button>
+            </div>
+        `;
+    }
+    
     const truncated = text.substring(0, maxLength) + '...';
-    const fullText = text.replace(/'/g, '&#39;').replace(/"/g, '&quot;');
     return `
-        <span class="text-truncate" title="${fullText}">${truncated}</span>
-        <button class="copy-btn" onclick="copyText('${fullText}')">
-            <i class="fas fa-copy"></i> Copy
-        </button>
+        <div class="cell-content">
+            <span class="cell-text text-truncate" title="${text}">${truncated}</span>
+            <button class="copy-btn" onclick="copyText(this, '${escapedText}')">
+                <i class="fas fa-copy"></i>
+            </button>
+        </div>
     `;
 }
 
 // Copy text to clipboard
-function copyText(text) {
-    // Decode HTML entities
-    const textarea = document.createElement('textarea');
-    textarea.innerHTML = text;
-    const decodedText = textarea.value;
+function copyText(btn, text) {
+    // Unescape the text
+    const decodedText = text.replace(/\\\\/g, '\\').replace(/\\'/g, "'");
     
     navigator.clipboard.writeText(decodedText).then(() => {
         // Show success message
-        const btn = event.target.closest('.copy-btn');
         const originalHTML = btn.innerHTML;
-        btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+        const originalBg = btn.style.background;
+        btn.innerHTML = '<i class="fas fa-check"></i>';
         btn.style.background = '#48bb78';
         
         setTimeout(() => {
             btn.innerHTML = originalHTML;
-            btn.style.background = '#667eea';
+            btn.style.background = originalBg || '';
         }, 2000);
     }).catch(err => {
         console.error('Failed to copy:', err);

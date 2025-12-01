@@ -1,0 +1,23 @@
+{
+  "name": "airline-test",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "http-server -p 8000 -c-1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/trung-devvon/airp-test.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/trung-devvon/airp-test/issues"
+  },
+  "homepage": "https://github.com/trung-devvon/airp-test#readme",
+  "description": "",
+  "devDependencies": {
+    "http-server": "^14.1.1"
+  }
+}
